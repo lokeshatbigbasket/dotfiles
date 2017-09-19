@@ -1,3 +1,26 @@
+# ~/.bashrc: executed by bash(1) for non-login shells.
+# see /usr/share/doc/bash/examples/startup-files (in the package bash-doc)
+# for examples
+
+# If not running interactively, don't do anything
+case $- in
+    *i*) ;;
+      *) return;;
+esac
+
+# don't put duplicate lines or lines starting with space in the history.
+# See bash(1) for more options
+HISTCONTROL=ignoreboth
+
+# append to the history file, don't overwrite it
+shopt -s histappend
+
+# for setting history length see HISTSIZE and HISTFILESIZE in bash(1)
+#HISTSIZE=1000
+#HISTFILESIZE=2000
+
+# Eternal bash history.
+# ---------------------
 # Undocumented feature which sets the size to "unlimited".
 # http://stackoverflow.com/questions/9457233/unlimited-bash-history
 export HISTFILESIZE=
@@ -9,7 +32,107 @@ export HISTFILE=~/.bash_history
 # Force prompt to write history after every command.
 # http://superuser.com/questions/20900/bash-history-loss
 
+
+# check the window size after each command and, if necessary,
+# update the values of LINES and COLUMNS.
+shopt -s checkwinsize
+
+# If set, the pattern "**" used in a pathname expansion context will
+# match all files and zero or more directories and subdirectories.
+#shopt -s globstar
+
+# make less more friendly for non-text input files, see lesspipe(1)
+[ -x /usr/bin/lesspipe ] && eval "$(SHELL=/bin/sh lesspipe)"
+
+# set variable identifying the chroot you work in (used in the prompt below)
+if [ -z "${debian_chroot:-}" ] && [ -r /etc/debian_chroot ]; then
+    debian_chroot=$(cat /etc/debian_chroot)
+fi
+
+# set a fancy prompt (non-color, unless we know we "want" color)
+case "$TERM" in
+    xterm-color|*-256color) color_prompt=yes;;
+esac
+
+# uncomment for a colored prompt, if the terminal has the capability; turned
+# off by default to not distract the user: the focus in a terminal window
+# should be on the output of commands, not on the prompt
+force_color_prompt=yes
+
+if [ -n "$force_color_prompt" ]; then
+    if [ -x /usr/bin/tput ] && tput setaf 1 >&/dev/null; then
+	# We have color support; assume it's compliant with Ecma-48
+	# (ISO/IEC-6429). (Lack of such support is extremely rare, and such
+	# a case would tend to support setf rather than setaf.)
+	color_prompt=yes
+    else
+	color_prompt=
+    fi
+fi
+
+if [ "$color_prompt" = yes ]; then
+    PS1='${debian_chroot:+($debian_chroot)}\[\033[01;35m\]\u\[\033[01;37m\]@\[\033[01;32m\]\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$ '
+else
+    PS1='${debian_chroot:+($debian_chroot)}\u@\h:\w\$ '
+fi
+unset color_prompt force_color_prompt
+
+# If this is an xterm set the title to user@host:dir
+case "$TERM" in
+xterm*|rxvt*)
+    PS1="\[\e]0;${debian_chroot:+($debian_chroot)}\u@\h: \w\a\]$PS1"
+    ;;
+*)
+    ;;
+esac
+
+# enable color support of ls and also add handy aliases
+if [ -x /usr/bin/dircolors ]; then
+    test -r ~/.dircolors && eval "$(dircolors -b ~/.dircolors)" || eval "$(dircolors -b)"
+    alias ls='ls --color=auto'
+    #alias dir='dir --color=auto'
+    #alias vdir='vdir --color=auto'
+
+    alias grep='grep --color=auto'
+    alias fgrep='fgrep --color=auto'
+    alias egrep='egrep --color=auto'
+fi
+
+# colored GCC warnings and errors
+#export GCC_COLORS='error=01;31:warning=01;35:note=01;36:caret=01;32:locus=01:quote=01'
+
+# some more ls aliases
+alias ll='ls -alF'
+alias la='ls -A'
+alias l='ls -CF'
+
+# Add an "alert" alias for long running commands.  Use like so:
+#   sleep 10; alert
 alias alert='notify-send --urgency=low -i "$([ $? = 0 ] && echo terminal || echo error)" "$(history|tail -n1|sed -e '\''s/^\s*[0-9]\+\s*//;s/[;&|]\s*alert$//'\'')"'
+
+# Alias definitions.
+# You may want to put all your additions into a separate file like
+# ~/.bash_aliases, instead of adding them here directly.
+# See /usr/share/doc/bash-doc/examples in the bash-doc package.
+
+if [ -f ~/.bash_aliases ]; then
+    . ~/.bash_aliases
+fi
+
+# enable programmable completion features (you don't need to enable
+# this, if it's already enabled in /etc/bash.bashrc and /etc/profile
+# sources /etc/bash.bashrc).
+if ! shopt -oq posix; then
+  if [ -f /usr/share/bash-completion/bash_completion ]; then
+    . /usr/share/bash-completion/bash_completion
+  elif [ -f /etc/bash_completion ]; then
+    . /etc/bash_completion
+  fi
+fi
+
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
 export WORKON_HOME=$HOME/.virtualenvs
 source /usr/local/bin/virtualenvwrapper.sh
 JRE_HOME=/usr/lib/jvm/java-8-openjdk-amd64/jre
@@ -17,6 +140,7 @@ export JRE_HOME
 JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
 export JAVA_HOME
 PATH=$PATH:$JAVA_HOME:$JRE_HOME
+PATH=$PATH:/usr/local/go/bin/
 export PATH
 function set-title(){
   if [[ -z "$ORIG" ]]; then
@@ -25,8 +149,43 @@ function set-title(){
   TITLE="\[\e]2;$*\a\]"
   PS1=${ORIG}${TITLE}
 }
+alias cdbb='set-title workspace && cd /home/lokesh/BigBasket && workon bigbasket'
+alias cdbb2='set-title workspace2 && cd /var/www/BigBasket && workon bigbasket'
+alias horiz='synclient HorizTwoFingerScroll=0'
 . /usr/share/undistract-me/long-running.bash
 notify_when_long_running_commands_finish_install
+function jira(){
+    if [ -z "$1" ]
+      then
+        echo "No argument supplied"
+        return 0
+    fi
+    #if [ $# -eq 0 ]
+      #then
+        #echo "No arguments supplied"
+        #return 0
+    #fi
+    python -c "import webbrowser;webbrowser.open_new_tab('https://bigbasket.atlassian.net/browse/BB-$1')"
+}
+alias sb="source ~/.bashrc"
+alias shell_plus="set-title shell_plus && cd /home/lokesh/BigBasket && workon bigbasket && ./manage.py shell_plus"
+alias shell_plus2="set-title shell_plus2 && cd /var/www/BigBasket && workon bigbasket && ./manage.py shell_plus"
+function runserver(){
+    _status=`service aerospike status | grep "inactive"`
+    if [ ! -z "$_status" ];then
+        echo "starting aerospike"
+        sudo service aerospike start
+    fi
+    set-title runserver && cdbb && ./manage.py runserver
+}
+function runserver2(){
+    _status=`service aerospike status | grep "inactive"`
+    if [ ! -z "$_status" ];then
+        echo "starting aerospike"
+        sudo service aerospike start
+    fi
+    set-title runserver2 && cdbb2 && ./manage.py runserver 7000
+}
 function vimtags(){
     if [ -z "$1" ]
       then
@@ -38,6 +197,72 @@ function vimtags(){
         echo "Must give a directory to generate tags"
         return 0
     fi
-    cd $1 && ctags -R --languages=Python,JavaScript --exclude=*.min.js --exclude=.git -o tags
+    cd $1 && ctags -R --languages=Python,JavaScript --exclude=*.min.js --exclude=**/node_modules/** --exclude=.git -o tags
 }
-alias sb="source ~/.bashrc"
+function gitopen(){
+    if [ -z "$1" ] && [ -z "$2" ]
+      then
+        echo "No argument supplied"
+        return 0
+    fi
+    if [ -z "$1" ]
+      then
+        echo "Which branch??"
+        return 0
+    fi
+    if [ -z "$2" ]
+      then
+        echo "What file??"
+        return 0
+    fi
+    python -c "import webbrowser;webbrowser.open_new_tab('https://github.com/BigBasket/BigBasket/blob/$1/$2#L${3:-1}')"
+}
+function githome(){
+    python -c "import webbrowser;webbrowser.open_new_tab('https://github.com/lokeshatbigbasket/BigBasket/')"
+}
+alias git-new-workdir=". /home/lokesh/git-new-workdir.sh"
+alias letsgo="set-title workspace2 && cd /var/www/BigBasket && gvim manage.py"
+alias testaws="set-title testaws && ssh bbadmin@34.205.120.204"
+function ackgrep(){
+    if [ -z "$1" ] && [ -z "$2" ]
+      then
+        echo "No regular expression specified"
+        return 0
+    elif [ "$1" == "-e" ] && [ -z "$2" ]
+      then
+        echo "No regular expression specified"
+        return 0
+    elif [ "$1" == "-i" ]
+      then
+        ack-grep -H --type=python "$2"
+    else
+        ack-grep -H --type=python "\b$1\b" 
+    fi
+}
+function bashgrep(){
+    if [ -z "$1" ]
+      then
+        echo "Must give a directory to generate tags"
+        return 0
+    fi
+    if [ $# -eq 0 ]
+      then
+        echo "Must give a directory to generate tags"
+        return 0
+    fi
+    ackgrep $1 /home/lokesh/.bash_history
+}
+function pfind(){
+    if [ -z "$1" ]
+      then
+        echo "Must give a directory to generate tags"
+        return 0
+    fi
+    if [ $# -eq 0 ]
+      then
+        echo "Must give a directory to generate tags"
+        return 0
+    fi
+    find . -type f -iname "*$1*.py"
+}
+alias git=hub
