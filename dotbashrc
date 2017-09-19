@@ -9,7 +9,6 @@ export HISTFILE=~/.bash_history
 # Force prompt to write history after every command.
 # http://superuser.com/questions/20900/bash-history-loss
 
-PROMPT_COMMAND="history -a; $PROMPT_COMMAND"
 alias alert='notify-send --urgency=low -i "$([ $? = 0 ] && echo terminal || echo error)" "$(history|tail -n1|sed -e '\''s/^\s*[0-9]\+\s*//;s/[;&|]\s*alert$//'\'')"'
 export WORKON_HOME=$HOME/.virtualenvs
 source /usr/local/bin/virtualenvwrapper.sh
