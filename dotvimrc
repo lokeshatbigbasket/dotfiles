@@ -54,7 +54,7 @@ Plugin 'klen/python-mode'
 " Better autocompletion
 Plugin 'Shougo/neocomplete.vim'
 " YouCompleteMe
-Plugin 'Valloric/YouCompleteMe'
+"Plugin 'Valloric/YouCompleteMe'
 " awesome colorscheme
 Plugin 'tomasr/molokai'
 " Git/mercurial/others diff icons on the side of the file lines
@@ -106,9 +106,8 @@ set cursorline
 set cursorcolumn
 " hidden startup messages
 set shortmess=atI
-" auto read and write
-set autowrite
 set autoread
+set noautowrite
 " when deal with unsaved files ask what to do
 set confirm
 " no backup files
@@ -124,9 +123,9 @@ set backspace=2 " make backspace work like most other apps
 set backspace=indent,eol,start
 
 " tab length exceptions on some file types
- autocmd FileType html setlocal shiftwidth=2 tabstop=2 softtabstop=2
- autocmd FileType htmldjango setlocal shiftwidth=2 tabstop=2 softtabstop=2
- autocmd FileType javascript setlocal shiftwidth=2 tabstop=2 softtabstop=2
+autocmd FileType html setlocal shiftwidth=2 tabstop=2 softtabstop=2
+autocmd FileType htmldjango setlocal shiftwidth=2 tabstop=2 softtabstop=2
+autocmd FileType javascript setlocal shiftwidth=2 tabstop=2 softtabstop=2
 
 
 " always show status bar
@@ -234,7 +233,7 @@ set wildignore+=*/tmp/*,*.so,*.swp,*.zip,*.pyc,*.png,*.jpg,*.gif           "Linu
 "mapping to CtrlP if not"
 "nmap <C-P> :CtrlP<CR> 
 "mapping to CtrlB for Searching Buffers
-nmap <C-b> :CtrlPBuffer<CR>
+nmap ,b :CtrlPBuffer<CR>
 " tags (symbols) in current file finder mapping
 nmap ,g :CtrlPBufTag<CR>
 " tags (symbols) in all files finder mapping
@@ -295,8 +294,8 @@ let g:syntastic_style_error_symbol = '✗'
 let g:syntastic_style_warning_symbol = '⚠'
 let g:syntastic_mode_map = {
     \ "mode": "active",
-    \ "active_filetypes": ['python'],
-    \ "passive_filetypes": [] }
+    \ "active_filetypes": [],
+    \ "passive_filetypes": ['python'] }
 let g:syntastic_python_checkers = ['pylint']
 noremap <C-w>e :SyntasticCheck<CR>
 noremap <C-w>f :SyntasticToggleMode<CR>
@@ -315,6 +314,9 @@ let g:pymode_rope_goto_definition_bind = ',d'
 let g:pymode_rope_goto_definition_cmd = 'e'
 nmap ,D :tab split<CR>:PymodePython rope.goto()<CR>
 nmap ,o :RopeFindOccurrences<CR>
+let g:pymode_virtualenv = 1
+"let g:pymode_python = '/home/lokesh/.virtualenvs/bigbasket/bin/python2.7'
+
 " --------------------------------------------
 
 "  Neocomplete
@@ -481,15 +483,14 @@ au BufRead,BufNewFile *.py,*.pyw,*.c,*.h match BadWhitespace /\s\+$/
 set encoding=utf-8
 
 let python_highlight_all=1
-syntax on
 
 set tw=100
 
 "YouCompleteMe
 
-let g:ycm_python_binary_path = '/usr/bin/python3'
-let g:ycm_global_ycm_extra_conf = '/home/lokesh1729/.vim/bundle/YouCompleteMe/third_party/ycmd/cpp/ycm/.ycm_extra_conf.py'
-let g:ycm_collect_identifiers_from_tags_files = 0
+"let g:ycm_python_binary_path = '/usr/bin/python3'
+"let g:ycm_global_ycm_extra_conf = '/home/lokesh1729/.vim/bundle/YouCompleteMe/third_party/ycmd/cpp/ycm/.ycm_extra_conf.py'
+"let g:ycm_collect_identifiers_from_tags_files = 0
 
 
 " ===========================================================================
@@ -503,20 +504,6 @@ if &term =~? 'mlterm\|xterm\|xterm-256\|screen-256'
 else
     colorscheme delek
 endif
-
-" ============ Solarized ============
-
-"let g:solarized_termcolors=256
-
-"syntax on
-"set background=dark
-"colorscheme solarized
-
-"if has('gui_running')
-    "set background=dark
-"else
-    "set background=light
-"endif
 
 " ===================== My changes ===================
 " Move between tabs
@@ -551,7 +538,7 @@ nnoremap <C-]> g<C-]>
 let g:bookmark_highlight_lines = 1
 nmap bm <Plug>BookmarkToggle
 nmap ba <Plug>BookmarkAnnotate
-nmap ,b <Plug>BookmarkShowAll
+nmap <C-b> <Plug>BookmarkShowAll
 nmap bn <Plug>BookmarkNext
 nmap bp <Plug>BookmarkPrev
 nmap <Leader>c <Plug>BookmarkClear
@@ -559,7 +546,7 @@ nmap <Leader>x <Plug>BookmarkClearAll
 nmap bkk <Plug>BookmarkMoveUp
 nmap bjj <Plug>BookmarkMoveDown
 nmap <Leader>g <Plug>BookmarkMoveToLine
-syntax on
+nnoremap <C-W> Bclose
 
 "Set no wrap
 set nowrap
@@ -567,7 +554,7 @@ set nowrap
 if has('gui_running')
     colorscheme molokai
     set background=dark
-    set guifont=Ubuntu\ Mono\ derivative\ Powerline\ 12
+    set guifont=Meslo\ LG\ M\ for\ Powerline\ 12
     hi VertSplit guifg=white
     hi LineNr guifg=white
 else
