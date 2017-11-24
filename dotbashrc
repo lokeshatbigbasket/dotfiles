@@ -71,9 +71,9 @@ if [ -n "$force_color_prompt" ]; then
 fi
 
 if [ "$color_prompt" = yes ]; then
-    PS1='${debian_chroot:+($debian_chroot)}\[\033[01;35m\]\u\[\033[01;37m\]@\[\033[01;32m\]\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$ '
+    PS1="${debian_chroot:+($debian_chroot)}\[\033[01;35m\]\u\[\033[01;37m\]@\[\033[01;32m\]\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$:(\$(git branch 2>/dev/null | grep '^*' | colrm 1 2))\$ "
 else
-    PS1='${debian_chroot:+($debian_chroot)}\u@\h:\w\$ '
+    PS1="${debian_chroot:+($debian_chroot)}\u@\h:\w\$:(\$(git branch 2>/dev/null | grep '^*' | colrm 1 2))\$ "
 fi
 unset color_prompt force_color_prompt
 
@@ -149,8 +149,8 @@ function set-title(){
   TITLE="\[\e]2;$*\a\]"
   PS1=${ORIG}${TITLE}
 }
-alias cdbb='set-title workspace && cd /home/lokesh/BigBasket && workon bigbasket'
-alias cdbb2='set-title workspace2 && cd /var/www/BigBasket && workon bigbasket'
+alias cdbb='set-title workspace && cd /srv/webapps/bigbasket.com/BigBasket && workon bigbasket'
+alias cdbb2='set-title workspace2 && cd /var/www/bigbasket.com/BigBasket && workon bigbasket'
 alias horiz='synclient HorizTwoFingerScroll=0'
 . /usr/share/undistract-me/long-running.bash
 notify_when_long_running_commands_finish_install
@@ -168,23 +168,23 @@ function jira(){
     python -c "import webbrowser;webbrowser.open_new_tab('https://bigbasket.atlassian.net/browse/BB-$1')"
 }
 alias sb="source ~/.bashrc"
-alias shell_plus="set-title shell_plus && cd /home/lokesh/BigBasket && workon bigbasket && ./manage.py shell_plus"
-alias shell_plus2="set-title shell_plus2 && cd /var/www/BigBasket && workon bigbasket && ./manage.py shell_plus"
-function runserver(){
+alias sp="set-title shell_plus && cd /srv/webapps/bigbasket.com/BigBasket && workon bigbasket && ./manage.py shell_plus"
+alias sp2="set-title shell_plus2 && cd /var/www/bigbasket.com/BigBasket && workon bigbasket && ./manage.py shell_plus"
+function rs(){
     _status=`service aerospike status | grep "inactive"`
     if [ ! -z "$_status" ];then
         echo "starting aerospike"
         sudo service aerospike start
     fi
-    set-title runserver && cdbb && ./manage.py runserver
+    set-title runserver && cdbb && ./manage.py runserver 8080
 }
-function runserver2(){
+function rs2(){
     _status=`service aerospike status | grep "inactive"`
     if [ ! -z "$_status" ];then
         echo "starting aerospike"
         sudo service aerospike start
     fi
-    set-title runserver2 && cdbb2 && ./manage.py runserver 7000
+    set-title runserver2 && cdbb2 && ./manage.py runserver 8000
 }
 function vimtags(){
     if [ -z "$1" ]
@@ -217,10 +217,28 @@ function gitopen(){
     fi
     python -c "import webbrowser;webbrowser.open_new_tab('https://github.com/BigBasket/BigBasket/blob/$1/$2#L${3:-1}')"
 }
+function gitcompare(){
+    if [ -z "$1" ] && [ -z "$2" ]
+      then
+        echo "No argument supplied"
+        return 0
+    fi
+    if [ -z "$1" ]
+      then
+        echo "Base fork??"
+        return 0
+    fi
+    if [ -z "$2" ]
+      then
+        echo "Head fork??"
+        return 0
+    fi
+    python -c "import webbrowser;webbrowser.open_new_tab('https://github.com/BigBasket/BigBasket/compare/$1...lokeshatbigbasket:$2')"
+}
 function githome(){
     python -c "import webbrowser;webbrowser.open_new_tab('https://github.com/lokeshatbigbasket/BigBasket/')"
 }
-alias git-new-workdir=". /home/lokesh/git-new-workdir.sh"
+alias git-new-workdir=". /home/lokesh1729/git-new-workdir.sh"
 alias letsgo="set-title workspace2 && cd /var/www/BigBasket && gvim manage.py"
 alias testaws="set-title testaws && ssh bbadmin@34.205.120.204"
 function ackgrep(){
@@ -232,25 +250,20 @@ function ackgrep(){
       then
         echo "No regular expression specified"
         return 0
-    elif [ "$1" == "-i" ]
+    elif [ "$1" == "-e" ]
       then
-        ack-grep -H --type=python "$2"
+        ack -H --type=python "\b$2\b"
     else
-        ack-grep -H --type=python "\b$1\b" 
+        ack -H --type=python "$1" 
     fi
 }
 function bashgrep(){
     if [ -z "$1" ]
       then
-        echo "Must give a directory to generate tags"
+        echo "No regular expression specified"
         return 0
-    fi
-    if [ $# -eq 0 ]
-      then
-        echo "Must give a directory to generate tags"
-        return 0
-    fi
-    ackgrep $1 /home/lokesh/.bash_history
+    fi 
+    ack $1 /home/lokesh1729/.bash_history
 }
 function pfind(){
     if [ -z "$1" ]
@@ -266,3 +279,5 @@ function pfind(){
     find . -type f -iname "*$1*.py"
 }
 alias git=hub
+alias gitrl="git rl | grep \"checkout\" | head -5"
+alias gitbr="git br | grep \"*\""
