@@ -48,9 +48,6 @@ Plugin 'vim-airline/vim-airline'
 Plugin 'vim-airline/vim-airline-themes'
 " Surround
 Plugin 'tpope/vim-surround'
-" Python mode (indentation, doc, refactor, lints, code checking, motion and
-" operators, highlighting, run and ipdb breakpoints)
-Plugin 'klen/python-mode'
 " Better autocompletion
 Plugin 'Shougo/neocomplete.vim'
 " YouCompleteMe
@@ -299,25 +296,6 @@ let g:syntastic_mode_map = {
 let g:syntastic_python_checkers = ['pylint']
 noremap <C-w>e :SyntasticCheck<CR>
 noremap <C-w>f :SyntasticToggleMode<CR>
-" Python-mode ------------------------------
-
-" don't use linter, we use syntastic for that
-let g:pymode_lint_on_write = 0
-let g:pymode_lint_signs = 0
-" don't fold python code on open
-let g:pymode_folding = 0
-" don't load rope by default. Change to 1 to use rope
-let g:pymode_rope = 0
-" open definitions on same window, and custom mappings for definitions and
-" occurrences
-let g:pymode_rope_goto_definition_bind = ',d'
-let g:pymode_rope_goto_definition_cmd = 'e'
-nmap ,D :tab split<CR>:PymodePython rope.goto()<CR>
-nmap ,o :RopeFindOccurrences<CR>
-let g:pymode_virtualenv = 1
-"let g:pymode_python = '/home/lokesh/.virtualenvs/bigbasket/bin/python2.7'
-
-" --------------------------------------------
 
 "  Neocomplete
 let g:acp_enableAtStartup = 0
@@ -466,7 +444,7 @@ au BufNewFile,BufRead *.py
     \ set tabstop=4 |
     \ set softtabstop=4 |
     \ set shiftwidth=4 |
-    \ set textwidth=79 |
+    \ set textwidth=99 |
     \ set expandtab |
     \ set autoindent |
     \ set fileformat=unix |
@@ -548,8 +526,9 @@ nmap bjj <Plug>BookmarkMoveDown
 nmap <Leader>g <Plug>BookmarkMoveToLine
 nnoremap <C-W> Bclose
 
-"Set no wrap
-set nowrap
+set wrap
+set linebreak
+set nolist
 
 if has('gui_running')
     colorscheme molokai
